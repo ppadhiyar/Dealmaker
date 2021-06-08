@@ -10,11 +10,18 @@ class App extends Component {
     phonenumber: "",
   };
 
-  handleChange = ({ traget: { value, firstname } }) =>
-    this.setState({ [firstname]: value });
+  handleChange = ({ target: { value, name } }) =>
+    this.setState({ [name]: value });
 
   downloadPdf = () => {
-    axios.post("/create-pdf", this.state);
+    axios
+      .post("/create-pdf", this.state)
+      .then(() => axios.get("/fetch-pdf", { responseType: "blob" }))
+      .then((res) => {
+        const pdfBlob = new Blob([res.data], { type: "application/pdf" });
+
+        saveAs(pdfBlob, "dealmaker.pdf");
+      });
   };
   render() {
     return (
@@ -22,19 +29,19 @@ class App extends Component {
         <input
           type="text"
           placeholder="First Name"
-          name="firstName"
+          name="firstname"
           onChange={this.handleChange}
         />
         <input
           type="text"
           placeholder="Last Name"
-          name="lastName"
+          name="lastname"
           onChange={this.handleChange}
         />
         <input
           type="text"
           placeholder="Phone Number"
-          name="phoneNumber"
+          name="phonenumber"
           onChange={this.handleChange}
         />
         <button onClick={this.downloadPdf}>Dowload PDF</button>
